@@ -1,4 +1,4 @@
-本项目是将FFmpeg移植到Android平台，NDK需要设定或export为各自的android ndk路径，当前支持ffmpeg 2.3版本,后续继续更新支持ffmpeg其他版本<br/>
+本项目是将FFmpeg移植到Android平台，NDK需要设定或export为各自的android ndk路径，当前支持ffmpeg 2.3版本,后续继续更新支持ffmpeg其他版本,另外该项目编译所得的库适用于我目前所经历的项目，对于其他的项目可能会不兼容，具体的需要进行具体的处理，编译的结果在build/android/目录中 <br/>
 build_x264.sh 用于编译x264,该项目没有集成<br/>
 RUN：<br/>
   ./android_build.sh  #没有ffmpeg代码的话，则获取最新的ffmpeg代码，有的ffmpeg代码，不更新到ffmpeg最新代码<br/>
