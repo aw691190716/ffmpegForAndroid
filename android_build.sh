@@ -38,7 +38,7 @@ export AS=$TOOLCHAIN/bin/arm-linux-androideabi-as
 export RANLIB=$TOOLCHAIN/bin/arm-linux-androideabi-ranlib
 export TMPDIR=$ROOT_DIR/build
 
-rm -rf $ROOT_DIR/build/android
+rm -rf $ROOT_DIR/build/android-$HOST
 
 if [ ! -d ffmpeg ]; then
   git clone git://source.ffmpeg.org/ffmpeg.git ffmpeg
@@ -48,9 +48,25 @@ if [ -d ffmpeg ]; then
   git reset --hard
   git clean -f -d
   git checkout master
-  if [ x"$1" = "xupdate" ]; then
-    git pull
-  fi
+  case $1 in
+    --update|-up) git pull
+	 ;;
+	--help|-h)
+	  cat <<EOF
+
+Usage: android_build.sh [options]
+
+options:
+  --help,-h             print this message and print ffmpeg configure help message
+  --update,-up          update ffmpeg source at first and the configure, then build 
+
+EOF
+    ./configure --help
+	exit 0
+	 ;;
+	*)
+	 ;;
+  esac
 else
   exit 0
 fi
@@ -124,14 +140,14 @@ for version in armv7a-neon armv7a armv6vfp armv5te armv4t; do
       ;;
     armv7a)
       CPU="armv7-a"
-      EXTRA_FLAGS=""
+      EXTRA_FLAGS="--enable-vfp"
       EXTRA_CFLAGS="-march=armv7-a -mfpu=vfpv3-d16 -mfloat-abi=softfp"
       EXTRA_LDFLAGS="-Wl,--fix-cortex-a8"
       EXTRA_OBJS=""
       ;;
     armv6vfp)
       CPU="armv6"
-      EXTRA_FLAGS=""
+      EXTRA_FLAGS="--enable-vfp"
       EXTRA_CFLAGS="-march=armv6 -mfpu=vfp -mfloat-abi=softfp -DCMP_HAVE_VFP"
       EXTRA_LDFLAGS=""
       EXTRA_OBJS=""
@@ -159,7 +175,7 @@ for version in armv7a-neon armv7a armv6vfp armv5te armv4t; do
       ;;
   esac
 
-  PREFIX="$ROOT_DIR/build/android/$version" && mkdir -p $PREFIX
+  PREFIX="$ROOT_DIR/build/android-$HOST/$version" && mkdir -p $PREFIX
   FFMPEG_FLAGS="$FFMPEG_FLAGS --prefix=$PREFIX"
 
   ./configure $FFMPEG_FLAGS --cpu=$CPU $EXTRA_FLAGS --extra-cflags="$CFLAGS $EXTRA_CFLAGS" --extra-ldflags="$LDFLAGS $EXTRA_LDFLAGS" --extra-cxxflags='-Wno-multichar -fno-exceptions -fno-rtti' | tee $PREFIX/configuration.txt
